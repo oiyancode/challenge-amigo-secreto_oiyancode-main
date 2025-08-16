@@ -1,6 +1,7 @@
 const REGEX_NOME = /^[\p{L}\s]+$/u;
 const inputAmigo = document.getElementById("amigo");
 let listaAmigos = [];
+const MAX_CARACTERES = 15; // limite de caracteres
 
 function adicionarAmigo() {
     const input = document.getElementById("amigo");
@@ -12,6 +13,20 @@ function adicionarAmigo() {
         return;
     }
     
+    // Remover nome se começar com "-"
+    if (nome.startsWith("-")) {
+        const nomeRemover = nome.substring(1).trim();
+        listaAmigos = listaAmigos.filter(n => n.toLowerCase() !== nomeRemover.toLowerCase());
+        atualizarLista();
+        inputAmigo.value = "";
+        return;
+    }
+
+    if (nome.length > MAX_CARACTERES) {
+        alert(`O nome deve ter no máximo ${MAX_CARACTERES} caracteres.`);
+        return;
+    }
+
     // valida com regex
     if (!REGEX_NOME.test(nome)) {
         alert("O nome deve conter somente letras e espaços (sem números ou símbolos).");
@@ -31,13 +46,43 @@ function limparInputAmigos() {
 function atualizarLista() {
     const ul = document.getElementById("listaAmigos");
     ul.innerHTML = "";
-    
-    for (let i = 0; i < listaAmigos.length; i++) {
+
+    listaAmigos.forEach((nome, index) => {
         const li = document.createElement("li");
-        li.textContent = listaAmigos[i];
+        li.style.display = "flex";
+        li.style.justifyContent = "space-between";
+        li.style.alignItems = "center";
+        li.style.padding = "4px 0";
+
+        const spanNome = document.createElement("span");
+        spanNome.textContent = nome;
+
+        // Botão "X" para remover
+        const remover = document.createElement("button");
+        remover.textContent = "✖";
+        remover.style.background = "lightgray, white";
+        remover.style.border = "none";
+        remover.style.color = "red";
+        remover.style.cursor = "pointer";
+        remover.style.fontSize = "18px"; // menor tamanho do "X"
+        remover.style.fontWeight = "bold";
+        remover.style.marginLeft = "10px"; // espaço entre o nome e o "X"
+        remover.style.padding = "10px 15px"; // espaço interno do botão
+        remover.title = "Clique para remover";
+        remover.onclick = function() {
+            if (confirm(`Tem certeza que deseja remover "${nome}"?`)) {
+                listaAmigos.splice(index, 1);
+                atualizarLista();
+            }
+        };
+
+        li.appendChild(spanNome);
+        li.appendChild(remover);
         ul.appendChild(li);
-    }
+    });
 }
+
+
 
 function sortearAmigo() {
     console.log("Sortear amigo clicado");
